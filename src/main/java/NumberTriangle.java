@@ -1,5 +1,5 @@
 import java.io.*;
-
+import java.util.*;
 /**
  * This is the provided NumberTriangle class to be used in this coding task.
  *
@@ -104,33 +104,45 @@ public class NumberTriangle {
      * @throws IOException may naturally occur if an issue reading the file occurs
      */
     public static NumberTriangle loadTriangle(String fname) throws IOException {
-        // open the file and get a BufferedReader object whose methods
-        // are more convenient to work with when reading the file contents.
-        InputStream inputStream = NumberTriangle.class.getClassLoader().getResourceAsStream(fname);
-        BufferedReader br = new BufferedReader(new InputStreamReader(inputStream));
-
-
-        // TODO define any variables that you want to use to store things
-
-        // will need to return the top of the NumberTriangle,
-        // so might want a variable for that.
-        NumberTriangle top = null;
-
-        String line = br.readLine();
-        while (line != null) {
-
-            // remove when done; this line is included so running starter code prints the contents of the file
-            System.out.println(line);
-
-            // TODO process the line
-
-            //read the next line
-            line = br.readLine();
+        InputStream is = NumberTriangle.class.getClassLoader().getResourceAsStream(fname);
+        if (is == null) {
+            throw new FileNotFoundException("Resource not found: " + fname);
         }
-        br.close();
+
+        NumberTriangle top = null;
+        List<NumberTriangle> prevRow = new ArrayList<>();
+
+        try (BufferedReader br = new BufferedReader(new InputStreamReader(is))) {
+            String line;
+            while ((line = br.readLine()) != null) {
+                line = line.trim();
+                if (line.isEmpty()) {
+                    continue; // skip blank lines if any
+                }
+
+                // Build current row nodes
+                String[] parts = line.split("\\s+");
+                List<NumberTriangle> currRow = new ArrayList<>(parts.length);
+                for (String p : parts) {
+                    currRow.add(new NumberTriangle(Integer.parseInt(p)));
+                }
+
+                // Link previous row to this row: each prev[i] has children curr[i] and curr[i+1]
+                for (int i = 0; i < prevRow.size(); i++) {
+                    prevRow.get(i).setLeft(currRow.get(i));
+                    prevRow.get(i).setRight(currRow.get(i + 1));
+                }
+
+                if (top == null) {
+                    top = currRow.get(0); // first node of the first row is the top
+                }
+
+                prevRow = currRow;
+            }
+        }
+
         return top;
     }
-
     public static void main(String[] args) throws IOException {
 
         NumberTriangle mt = NumberTriangle.loadTriangle("input_tree.txt");
