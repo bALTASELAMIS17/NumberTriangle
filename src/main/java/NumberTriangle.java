@@ -2,7 +2,7 @@ import java.io.*;
 import java.util.*;
 /**
  * This is the provided NumberTriangle class to be used in this coding task.
- *
+ * yo
  * Note: This is like a tree, but some nodes in the structure have two parents.
  *
  * The structure is shown below. Observe that the parents of e are b and c, whereas
